@@ -2,18 +2,21 @@ package main
 
 import (
 	"fmt"
+	"html/template"
 	"net/http"
 	"os"
-	"time"
 )
 
-func greet(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello World! %s", time.Now())
+func index(w http.ResponseWriter, r *http.Request) {
+	tmpl := template.Must(template.ParseFiles("views/index.html"))
+	if err := tmpl.Execute(w, nil); err != nil {
+		fmt.Println("[Error]", err)
+	}
 }
 
 func main() {
 	port := os.Getenv("PORT")
 
-	http.HandleFunc("/", greet)
+	http.HandleFunc("/", index)
 	http.ListenAndServe(":"+port, nil)
 }
