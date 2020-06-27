@@ -104,6 +104,8 @@ func solveSudoku(w http.ResponseWriter, r *http.Request) {
 func main() {
 	port := os.Getenv("PORT")
 
+	http.Handle("/views/", http.StripPrefix("/views/", http.FileServer(http.Dir("views/"))))
+
 	http.HandleFunc("/", index)
 	http.HandleFunc("/api/image/analyze", imageToSudoku)
 	http.HandleFunc("/api/sudoku/solve", solveSudoku)
