@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"io/ioutil"
 	"net/http"
 	"os"
 
@@ -45,27 +46,57 @@ func imageToSudoku(w http.ResponseWriter, r *http.Request) {
 	// 数独データを返す
 }
 
+type SolveRequest struct {
+	Table [][]int `json:"table"`
+}
+
 type SolveResponse struct {
-	Problem string `json:"problem"`
-	Answer  string `json:"answer"`
+	// Problem string `json:"problem"`
+	// Answer  string `json:"answer"`
+	Problem [][]int `json:"problem"`
+	Answer  [][]int `json:"answer"`
+}
+
+func table9x9() [][]int {
+	t := make([][]int, 9)
+	for i := range t {
+		t[i] = make([]int, 9)
+	}
+	return t
 }
 
 func solveSudoku(w http.ResponseWriter, r *http.Request) {
-	// 数独データが送られてくる
-	tablestr := r.URL.Query().Get("table")
-	table := stringToTable(tablestr)
-	s := sudoku.Sudoku9x9{table}
+	// 数独のJSONデータがPOSTで送られてくる
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	var req SolveRequest
+	if err := json.Unmarshal(body, &req); err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println("[Request]", req)
+	s := sudoku.Sudoku9x9{table9x9()}
+	for i := range s.Table {
+		for j := range s.Table[i] {
+			s.Table[i][j] = req.Table[i][j]
+		}
+	}
+
 	// 解いて返す
 	s.Solve()
 	solveRes := SolveResponse{
-		Problem: tablestr,
-		Answer:  tableToString(s.Table),
+		Problem: req.Table,
+		Answer:  s.Table,
 	}
 	res, err := json.Marshal(solveRes)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	fmt.Println("[Response]", string(res))
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(res)
 }
