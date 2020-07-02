@@ -1,0 +1,54 @@
+.sudoku-table {
+    width: calc(90vmin);
+    height: calc(90vmin);
+    max-width: 450px;
+    max-height: 450px;
+    border: 2px solid black;
+    border-collapse: collapse;
+}
+
+.sudoku-table td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+.sudoku-table td:nth-child(3),
+.sudoku-table td:nth-child(6) {
+    border-right: 2px solid black;
+}
+
+.sudoku-table tr:nth-child(3),
+.sudoku-table tr:nth-child(6) {
+    border-bottom: 2px solid black;
+}
+
+.sudoku-table input {
+    outline: none;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 1.4rem;
+    color: #333333;
+    height: calc(90vmin/9 - 2px);
+    width: calc(90vmin/9 - 2px);
+    max-height: 50px;
+    max-width: 50px;
+}
+
+.sudoku-table .focus-row,
+.sudoku-table .focus-col {
+    z-index: 1;
+    background-color: #E9E9E9;
+}
+
+.sudoku-table .focus-cell {
+    background-color: #aeb8b2;
+}
+
+.sudoku-table .uneditable-num {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.key-btn > span {
+    font-size: 1rem;
+}

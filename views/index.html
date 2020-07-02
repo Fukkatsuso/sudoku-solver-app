@@ -1,11 +1,64 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/@mdi/font@5.x/css/materialdesignicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+  <link href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" rel="stylesheet">
+  <link href="/views/css/index.css" type="text/css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
   <title>Sudoku Solver</title>
 </head>
+
 <body>
-  <h1>Sudoku Solver</h1>
+  <div id="app">
+    <v-app>
+      <v-card>
+        <v-toolbar color="#333333" dark tile>
+          <v-toolbar-title>Sudoku Solver</v-toolbar-title>
+        </v-toolbar>
+      </v-card>
+
+      <v-container class="pb-2  mt-sm-4 mt-md-4">
+        <v-row justify="center" no-gutters>
+          <v-col cols="auto">
+            <v-container class="pa-1" no-gutters>
+              <table class="sudoku-table">
+                <tbody>
+                  <tr v-for="(line, row) in table" :class="{'focus-row': isFocusedRow(row)}">
+                    <td v-for="(num, col) in line" class="text-center" :class="{'focus-col': isFocusedCol(col), 'focus-cell': isFocusedCell(row, col)}">
+                      <input readonly v-model.number="table[row][col]" maxlength="1" pattern="[1-9]{1}" :class="{'uneditable-num': !editable[row][col]}" @click="selectCell(row, col)">
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </v-container>
+          </v-col>
+        </v-row>
+      </v-container>
+
+      <v-container class="pa-0">
+        <v-row justify="center" no-gutters>
+          <v-col cols="auto">
+            <v-container class="pa-0" no-gutters>
+              <v-row v-for="line in keys" :key="line.id" justify="start" no-gutters>
+                <v-btn v-for="key in line" :key="key.id" class="ma-1 key-btn" tile outlined color="#333333" @click="keyAction(key)">${ key }</v-btn>
+              </v-row>
+            </v-container>
+          </v-col>
+        </v-row>
+      </v-container>
+      
+      <div class="text-center">
+        <v-btn class="ma-2" tile color="#333333" dark>答えを見る</v-btn>
+        <v-btn class="ma-2" tile color="#60CAAD" dark>画像から読み込む</v-btn>
+      </div>
+    </v-app>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+  <script src="/views/js/main.js"></script>
 </body>
 </html>
