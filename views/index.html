@@ -59,6 +59,21 @@
         <v-btn class="ma-2" tile color="#60CAAD" dark>画像から読み込む</v-btn>
       </div>
 
+      <v-dialog v-model="dialog.allClear" max-width="290">
+        <v-card>
+          <v-card-title class="headline">全て消しますか?</v-card-title>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="green darken-1" text @click="allClear(false)">
+              Yes
+            </v-btn>
+            <v-btn color="green darken-1" text @click="dialog.allClear = false">
+              No
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
       <v-dialog v-model="dialog.requestAnswer" max-width="290">
         <v-card>
           <v-card-title class="headline">答えを見ますか?</v-card-title>

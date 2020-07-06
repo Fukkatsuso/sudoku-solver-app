@@ -4,14 +4,15 @@ new Vue({
     vuetify: new Vuetify(),
     data() {
         return {
-            keys: [[1, 2, 3, 'C'], [4, 5, 6], [7, 8, 9]],
+            keys: [[1, 2, 3, 'C'], [4, 5, 6, 'AC'], [7, 8, 9]],
             table: this.newTable(null),
             editable: this.newTable(true),
             selectedRow: null,
             selectedCol: null,
             dialog: {
                 requestAnswer: false,
-                badTable: false
+                badTable: false,
+                allClear: false
             },
             loading: false
         }
@@ -45,11 +46,26 @@ new Vue({
                 }
             }
         },
+        allClear: function(strict) {
+            this.selectCell(null, null)
+            for (let i = 0; i < 9; i++) {
+                for (let j = 0; j < 9; j++) {
+                    if (!this.editable[i][j] && !strict) {
+                        continue
+                    }
+                    this.table[i].splice(j, 1, null)
+                    this.editable[i].splice(j, 1, true)
+                }
+            }
+            this.dialog.allClear = false
+        },
         keyAction: function(key) {
             let row = this.selectedRow
             let col = this.selectedCol
             if (key === 'C') {
                 this.setNumber(row, col, null)
+            } else if (key == 'AC') {
+                this.dialog.allClear = true
             } else {
                 this.setNumber(row, col, key)
             }
