@@ -50,15 +50,35 @@
         </v-row>
       </v-container>
       
+      <v-overlay :value="loading">
+        <v-progress-circular indeterminate size="64"></v-progress-circular>
+      </v-overlay>
+      
       <div class="text-center">
-        <v-btn class="ma-2" tile color="#333333" dark>答えを見る</v-btn>
+        <v-btn class="ma-2" tile color="#333333" dark @click.stop="dialog.requestAnswer = true">答えを見る</v-btn>
         <v-btn class="ma-2" tile color="#60CAAD" dark>画像から読み込む</v-btn>
       </div>
+
+      <v-dialog v-model="dialog.requestAnswer" max-width="290">
+        <v-card>
+          <v-card-title class="headline">答えを見ますか?</v-card-title>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="green darken-1" text @click="requestAnswer">
+              Yes
+            </v-btn>
+            <v-btn color="green darken-1" text @click="dialog.requestAnswer = false">
+              No
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
     </v-app>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script src="/views/js/main.js"></script>
 </body>
 </html>

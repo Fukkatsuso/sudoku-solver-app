@@ -8,7 +8,11 @@ new Vue({
             table: this.newTable(null),
             editable: this.newTable(true),
             selectedRow: null,
-            selectedCol: null
+            selectedCol: null,
+            dialog: {
+                requestAnswer: false
+            },
+            loading: false
         }
     },
     methods: {
@@ -48,6 +52,29 @@ new Vue({
             } else {
                 this.setNumber(row, col, key)
             }
+        },
+        requestAnswer: function() {
+            this.dialog.requestAnswer = false
+            this.loading = true
+            this.selectCell(null, null)
+            // 0埋めを表示させないために新規テーブルを用意
+            var sendTable = new Array(9)
+            for (let i = 0; i < 9; i++) {
+                sendTable[i] = new Array(9)
+                for (let j = 0; j < 9; j++) {
+                    sendTable[i][j] = this.table[i][j] || 0
+                }
+            }
+            axios.post('/api/sudoku/solve', {
+                table: sendTable
+            }).then(res => {
+                for (let i = 0; i < 9; i++) {
+                    for (let j = 0; j < 9; j++) {
+                        this.setNumber(i, j, res.data.answer[i][j])
+                    }
+                }
+                this.loading = false
+            })
         }
     },
     mounted: function() {
