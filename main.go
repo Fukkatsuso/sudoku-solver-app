@@ -85,6 +85,13 @@ func solveSudoku(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// 解けるか判定
+	if !s.Solvable() {
+		fmt.Println("[Error]", "This puzzle is not solvable")
+		http.Error(w, "This puzzle is not solvable.", http.StatusBadRequest)
+		return
+	}
+
 	// 解いて返す
 	s.Solve()
 	solveRes := SolveResponse{

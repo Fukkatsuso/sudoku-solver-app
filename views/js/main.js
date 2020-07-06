@@ -10,7 +10,8 @@ new Vue({
             selectedRow: null,
             selectedCol: null,
             dialog: {
-                requestAnswer: false
+                requestAnswer: false,
+                badTable: false
             },
             loading: false
         }
@@ -74,6 +75,10 @@ new Vue({
                     }
                 }
                 this.loading = false
+            }).catch(err => {
+                console.log(err.response.data)
+                this.loading = false
+                this.dialog.badTable = true
             })
         }
     },
