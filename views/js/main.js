@@ -99,9 +99,9 @@ new Vue({
         }
     },
     mounted: function() {
-        for (let i = 0; i < 9; i++) {
-            this.table[i].splice(i, 1, i+1)
-            this.editable[i].splice(i, 1, false)
-        }
+        // for (let i = 0; i < 9; i++) {
+        //     this.table[i].splice(i, 1, i+1)
+        //     this.editable[i].splice(i, 1, false)
+        // }
     }
 })
