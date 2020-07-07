@@ -110,6 +110,9 @@ func solveSudoku(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
 
 	http.Handle("/views/", http.StripPrefix("/views/", http.FileServer(http.Dir("views/"))))
 
