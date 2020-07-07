@@ -29,7 +29,7 @@ jobs:
         run: gcloud auth configure-docker --quiet
 
       - name: Build a docker image
-        run: docker build -f Dockerfile.prod -t $IMAGE
+        run: docker build -f Dockerfile.prod -t $IMAGE .
 
       - name: Push the docker image
         run: docker push $IMAGE
