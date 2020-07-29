@@ -67,14 +67,21 @@ func table9x9() [][]int {
 
 func solveSudoku(w http.ResponseWriter, r *http.Request) {
 	// 数独のJSONデータがPOSTで送られてくる
+	if r.Method != "POST" {
+		fmt.Println("[Error]", "Request must be POST method")
+		http.Error(w, "Request must be POST method", http.StatusMethodNotAllowed)
+		return
+	}
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		fmt.Println(err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	var req SolveRequest
 	if err := json.Unmarshal(body, &req); err != nil {
 		fmt.Println(err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	fmt.Println("[Request]", req)
@@ -88,7 +95,7 @@ func solveSudoku(w http.ResponseWriter, r *http.Request) {
 	// 解けるか判定
 	if !s.Solvable() {
 		fmt.Println("[Error]", "This puzzle is not solvable")
-		http.Error(w, "This puzzle is not solvable.", http.StatusBadRequest)
+		http.Error(w, "This puzzle is not solvable", http.StatusBadRequest)
 		return
 	}
 
@@ -100,6 +107,7 @@ func solveSudoku(w http.ResponseWriter, r *http.Request) {
 	}
 	res, err := json.Marshal(solveRes)
 	if err != nil {
+		fmt.Println(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
