@@ -56,7 +56,7 @@
       
       <div class="text-center">
         <v-btn class="ma-2" tile color="#333333" dark @click.stop="dialog.requestAnswer = true">答えを見る</v-btn>
-        <v-btn class="ma-2" tile color="#60CAAD" dark>画像から読み込む</v-btn>
+        <v-btn class="ma-2" tile color="#60CAAD" dark @click="dialog.imageForm = true">画像から読み込む</v-btn>
       </div>
 
       <v-dialog v-model="dialog.allClear" max-width="290">
@@ -96,6 +96,25 @@
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn color="green darken-1" text @click="dialog.badTable = false">OK</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
+      <v-dialog v-model="dialog.imageForm" max-width="290">
+        <v-card>
+          <v-card-actions>
+            <v-file-input accept="image/*" label="Select image" prepend-icon="mdi-camera" @change="requestAnalyze"></v-file-input>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
+      <v-dialog v-model="dialog.badImage" persistent max-width="290">
+        <v-card>
+          <v-card-title class="headline">エラー</v-card-title>
+          <v-card-text>パズル情報の読み取りに失敗しました</v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="green darken-1" text @click="dialog.badImage = false">OK</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>

@@ -12,7 +12,9 @@ new Vue({
             dialog: {
                 requestAnswer: false,
                 badTable: false,
-                allClear: false
+                allClear: false,
+                imageForm: false,
+                badImage: false,
             },
             loading: false
         }
@@ -96,7 +98,37 @@ new Vue({
                 this.loading = false
                 this.dialog.badTable = true
             })
-        }
+        },
+        requestAnalyze: function(file) {
+            if (!file) {
+                return
+            }
+            this.dialog.imageForm = false
+            this.loading = true
+            this.selectCell(null, null)
+            var formData = new FormData()
+            formData.append('sudokuImage', file)
+            axios.post('/api/analyze/image', formData, {
+                headers: {
+                    'content-type': 'multipart/form-data'
+                }
+            }).then(res => {
+                for (let i = 0; i < 9; i++) {
+                    for (let j = 0; j < 9; j++) {
+                        if (res.data.table[i][j] === 0) {
+                            this.setNumber(i, j, null)
+                        } else {
+                            this.setNumber(i, j, res.data.table[i][j])
+                        }
+                    }
+                }
+                this.loading = false
+            }).catch(err => {
+                console.log(err.response.data)
+                this.loading = false
+                this.dialog.badImage = true
+            })
+        },
     },
     mounted: function() {
         // for (let i = 0; i < 9; i++) {
