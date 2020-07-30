@@ -82,7 +82,7 @@ new Vue({
                     sendTable[i][j] = this.table[i][j] || 0
                 }
             }
-            axios.post('/api/sudoku/solve', {
+            axios.post('/api/solve/sudoku', {
                 table: sendTable
             }).then(res => {
                 for (let i = 0; i < 9; i++) {

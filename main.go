@@ -147,7 +147,7 @@ func main() {
 	http.Handle("/views/", http.StripPrefix("/views/", http.FileServer(http.Dir("views/"))))
 
 	http.HandleFunc("/", index)
-	http.HandleFunc("/api/image/analyze", imageToSudoku)
-	http.HandleFunc("/api/sudoku/solve", solveSudoku)
+	http.HandleFunc("/api/analyze/image", imageToSudoku)
+	http.HandleFunc("/api/solve/sudoku", solveSudoku)
 	http.ListenAndServe(":"+port, nil)
 }
