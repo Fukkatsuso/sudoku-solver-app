@@ -22,7 +22,7 @@ func table9x9() [][]int {
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
-	tmpl := template.Must(template.ParseFiles("views/index.html"))
+	tmpl := template.Must(template.ParseFiles("web/index.html"))
 	if err := tmpl.Execute(w, nil); err != nil {
 		fmt.Println("[Error]", err)
 	}
@@ -56,7 +56,7 @@ func imageToSudoku(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	table := table9x9()
-	if err := ocr.ImageToSudoku(img, table, "tmp/images"); err != nil {
+	if err := ocr.ImageToSudoku(img, table, "log/images"); err != nil {
 		fmt.Println(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -144,7 +144,7 @@ func main() {
 		port = "8080"
 	}
 
-	http.Handle("/views/", http.StripPrefix("/views/", http.FileServer(http.Dir("views/"))))
+	http.Handle("/web/", http.StripPrefix("/web/", http.FileServer(http.Dir("web/"))))
 
 	http.HandleFunc("/", index)
 	http.HandleFunc("/api/analyze/image", imageToSudoku)
