@@ -1,4 +1,5 @@
-FROM ubuntu:18.04
+# base
+FROM ubuntu:18.04 AS base
 
 RUN apt update && apt -y install \
         gnupg \
@@ -16,12 +17,10 @@ RUN curl -Lso go.tar.gz "https://dl.google.com/go/go${GO_VERSION}.linux-amd64.ta
     tar -C /usr/local -xzf go.tar.gz && \
     rm go.tar.gz
 
-# gocv
 RUN go get -u -v -d gocv.io/x/gocv && \
     cd $GOPATH/src/gocv.io/x/gocv && \
     make install
 
-# tesseract
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv 8529b1e0f8bf7f65c12fabb0a4bcbd87cef9e52d && \
     echo "deb http://ppa.launchpad.net/alex-p/tesseract-ocr/ubuntu bionic main" > /etc/apt/sources.list.d/tesseract-ocr.list && \
     echo "deb-src http://ppa.launchpad.net/alex-p/tesseract-ocr/ubuntu bionic main" >> /etc/apt/sources.list.d/tesseract-ocr.list && \
@@ -35,9 +34,21 @@ RUN go get -v -t github.com/otiai10/gosseract
 
 RUN go get -v -u github.com/Fukkatsuso/sudoku
 
-RUN go get -v github.com/oxequa/realize
-
 ENV PORT 8080
 EXPOSE 8080
 
 WORKDIR $GOPATH/src/github.com/Fukkatsuso/sudoku-solver-app
+
+# dev
+FROM base AS dev
+
+RUN go get -v github.com/oxequa/realize
+
+# release
+FROM base AS release
+
+COPY . .
+
+RUN go build -o server main.go
+
+CMD [ "./server" ]

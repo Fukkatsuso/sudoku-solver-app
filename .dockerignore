@@ -1,4 +1,7 @@
+.DS_Store
+.git/
 .github/
+log/images/*.png
 docker-compose.yml
 Dockerfile*
 README.md
