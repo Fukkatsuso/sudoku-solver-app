@@ -34,13 +34,14 @@ type AnalyzeResponse struct {
 
 func imageToSudoku(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
-		fmt.Println("[Error]", "Request must be POST method")
-		http.Error(w, "Request must be POST method", http.StatusMethodNotAllowed)
+		err := fmt.Errorf("Request must be POST method")
+		fmt.Println("[Error]", err)
+		http.Error(w, err.Error(), http.StatusMethodNotAllowed)
 		return
 	}
 	file, _, err := r.FormFile("sudokuImage")
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("[Error]", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -52,7 +53,7 @@ func imageToSudoku(w http.ResponseWriter, r *http.Request) {
 	// 数独画像を解析する
 	img, format, err := image.Decode(file)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("[Error]", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -60,12 +61,12 @@ func imageToSudoku(w http.ResponseWriter, r *http.Request) {
 	case "png", "jpg", "jpeg":
 	default:
 		err := fmt.Errorf("File format error: %s is cannot use", format)
-		fmt.Println(err)
+		fmt.Println("[Error]", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 	table := table9x9()
 	if err := ocr.ImageToSudoku(img, table, "log/images"); err != nil {
-		fmt.Println(err)
+		fmt.Println("[Error]", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -75,7 +76,7 @@ func imageToSudoku(w http.ResponseWriter, r *http.Request) {
 	}
 	res, err := json.Marshal(analyzeRes)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("[Error]", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -98,19 +99,20 @@ type SolveResponse struct {
 func solveSudoku(w http.ResponseWriter, r *http.Request) {
 	// 数独のJSONデータがPOSTで送られてくる
 	if r.Method != "POST" {
-		fmt.Println("[Error]", "Request must be POST method")
-		http.Error(w, "Request must be POST method", http.StatusMethodNotAllowed)
+		err := fmt.Errorf("Request must be POST method")
+		fmt.Println("[Error]", err)
+		http.Error(w, err.Error(), http.StatusMethodNotAllowed)
 		return
 	}
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("[Error]", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	var req SolveRequest
 	if err := json.Unmarshal(body, &req); err != nil {
-		fmt.Println(err)
+		fmt.Println("[Error]", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -124,8 +126,9 @@ func solveSudoku(w http.ResponseWriter, r *http.Request) {
 
 	// 解けるか判定
 	if !s.Solvable() {
-		fmt.Println("[Error]", "This puzzle is not solvable")
-		http.Error(w, "This puzzle is not solvable", http.StatusBadRequest)
+		err := fmt.Errorf("This puzzle is not solvable")
+		fmt.Println("[Error]", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -137,7 +140,7 @@ func solveSudoku(w http.ResponseWriter, r *http.Request) {
 	}
 	res, err := json.Marshal(solveRes)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("[Error]", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
