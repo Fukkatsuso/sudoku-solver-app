@@ -143,6 +143,7 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
+	fmt.Println("[Info]", "listen and serve on port:", port)
 
 	http.Handle("/web/", http.StripPrefix("/web/", http.FileServer(http.Dir("web/"))))
 
