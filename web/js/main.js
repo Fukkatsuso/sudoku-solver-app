@@ -124,7 +124,7 @@ new Vue({
                 }
                 this.loading = false
             }).catch(err => {
-                console.log(err.response.data)
+                console.log(err.response)
                 this.loading = false
                 this.dialog.badImage = true
             })
