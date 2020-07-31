@@ -50,10 +50,18 @@ func imageToSudoku(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	// 数独画像を解析する
-	img, _, err := image.Decode(file)
+	img, format, err := image.Decode(file)
 	if err != nil {
 		fmt.Println(err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
+	}
+	switch format {
+	case "png", "jpg", "jpeg":
+	default:
+		err := fmt.Errorf("File format error: %s is cannot use", format)
+		fmt.Println(err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 	table := table9x9()
 	if err := ocr.ImageToSudoku(img, table, "log/images"); err != nil {

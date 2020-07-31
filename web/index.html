@@ -103,7 +103,7 @@
       <v-dialog v-model="dialog.imageForm" max-width="290">
         <v-card>
           <v-card-actions>
-            <v-file-input accept=".png,.jpg" label="Select image" prepend-icon="mdi-camera" @change="requestAnalyze"></v-file-input>
+            <v-file-input accept="image/png,image/jpeg" label="Select image" prepend-icon="mdi-camera" @change="requestAnalyze"></v-file-input>
           </v-card-actions>
         </v-card>
       </v-dialog>
