@@ -117,7 +117,7 @@ func solveSudoku(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Println("[Request]", req)
-	s := sudoku.Sudoku9x9{table9x9()}
+	s := sudoku.Sudoku9x9{Table: table9x9()}
 	for i := range s.Table {
 		for j := range s.Table[i] {
 			s.Table[i][j] = req.Table[i][j]
