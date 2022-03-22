@@ -24,7 +24,6 @@ $ docker-compose up
   - GCP_SA_KEY: サービスアカウントのJSON鍵をBase64エンコードする
     - (mac) `$ openssl base64 -in {key file} | pbcopy`
 - 指定したGitHubのブランチにpush
-- GCP > Cloud Run > サービス名 > 権限 > 追加 > 設定(allUsers, Cloud Run 起動元)
 
 
 ## TODO

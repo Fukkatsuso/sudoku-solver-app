@@ -41,4 +41,5 @@ jobs:
             --project $GCP_PROJECT \
             --region $GCP_REGION \
             --platform managed \
+            --allow-unauthenticated \
             --quiet
