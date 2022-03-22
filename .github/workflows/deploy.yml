@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - develop
+    paths-ignore:
+      - "README.md"
 
 env:
   GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
