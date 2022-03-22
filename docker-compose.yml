@@ -2,15 +2,13 @@ version: "3.7"
 
 services:
   app:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile
       target: dev
     container_name: sudoku-solver
-    tty: true
     volumes:
       - .:/go/src/github.com/Fukkatsuso/sudoku-solver-app
-    ports: 
+    ports:
       - 8080:8080
     working_dir: /go/src/github.com/Fukkatsuso/sudoku-solver-app
-    command: "realize start --run"
