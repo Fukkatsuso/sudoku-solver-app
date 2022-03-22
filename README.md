@@ -6,7 +6,7 @@
 ```sh
 $ docker-compose up
 ```
-の後，[http://localhost:8080]を開く
+の後，<http://localhost:8080>を開く
 
 
 ## Deploy
