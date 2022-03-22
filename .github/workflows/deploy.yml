@@ -1,4 +1,4 @@
-name: Delivery
+name: Deploy
 
 on:
   push:
@@ -11,7 +11,7 @@ env:
   IMAGE: asia.gcr.io/${{ secrets.GCP_PROJECT }}/sudoku-solver:${{ github.sha }}
 
 jobs:
-  delivery:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
