@@ -1,9 +1,11 @@
-name: Delivery
+name: Deploy
 
 on:
   push:
     branches:
-      - develop
+      - main
+    paths-ignore:
+      - "README.md"
 
 env:
   GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
@@ -11,7 +13,7 @@ env:
   IMAGE: asia.gcr.io/${{ secrets.GCP_PROJECT }}/sudoku-solver:${{ github.sha }}
 
 jobs:
-  delivery:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -41,4 +43,5 @@ jobs:
             --project $GCP_PROJECT \
             --region $GCP_REGION \
             --platform managed \
+            --allow-unauthenticated \
             --quiet
