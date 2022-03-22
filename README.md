@@ -1,4 +1,7 @@
 # Sudoku Solver App
+
+[![Deploy](https://github.com/Fukkatsuso/sudoku-solver-app/actions/workflows/deploy.yml/badge.svg)](https://github.com/Fukkatsuso/sudoku-solver-app/actions/workflows/deploy.yml)
+
 任意の数独問題を解いてくれるWebアプリ
 
 
