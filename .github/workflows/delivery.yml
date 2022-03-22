@@ -3,7 +3,7 @@ name: Delivery
 on:
   push:
     branches:
-      - master
+      - develop
 
 env:
   GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
