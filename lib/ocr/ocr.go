@@ -61,10 +61,11 @@ func ImageToSudoku(img image.Image, table [][]int, savepath string) error {
 	if err != nil {
 		return err
 	}
-	gocv.DrawContours(&rgbMat, [][]image.Point{vertex}, -1, color.RGBA{255, 0, 0, 0}, 2)
+	contours := gocv.NewPointsVectorFromPoints([][]image.Point{vertex.ToPoints()})
+	gocv.DrawContours(&rgbMat, contours, -1, color.RGBA{255, 0, 0, 0}, 2)
 	gocv.IMWrite(savepath+"contour.png", rgbMat)
 	// 射影変換
-	tableMat := transform(binaryMat, vertex)
+	tableMat := transform(binaryMat, *vertex)
 	gocv.IMWrite(savepath+"table.png", tableMat)
 
 	// SubImageを使う前準備
@@ -99,27 +100,27 @@ func binarization(grayMat gocv.Mat) gocv.Mat {
 }
 
 // 4つの頂点を見つける
-func findVertex(binaryMat gocv.Mat) ([]image.Point, error) {
+func findVertex(binaryMat gocv.Mat) (*gocv.PointVector, error) {
 	center := image.Point{binaryMat.Cols() / 2, binaryMat.Rows() / 2}
 	// 輪郭検出
 	contours := gocv.FindContours(binaryMat, gocv.RetrievalExternal, gocv.ChainApproxSimple)
 	// "頂点の平均位置"が画像の中心に最も近い輪郭を求める
-	contour := contours[0]
-	minDist := dist(center, contour)
-	for i := 1; i < len(contours); i++ {
-		d := dist(center, contours[i])
+	contour := contours.At(0)
+	minDist := dist(center, contour.ToPoints())
+	for i := 1; i < contours.Size(); i++ {
+		d := dist(center, contours.At(i).ToPoints())
 		if d < minDist {
-			contour = contours[i]
+			contour = contours.At(i)
 			minDist = d
 		}
 	}
 	// 4つの頂点に縮約
 	arcLen := gocv.ArcLength(contour, true)
 	vertex := gocv.ApproxPolyDP(contour, arcLen*0.01, true)
-	if len(vertex) != 4 {
+	if vertex.Size() != 4 {
 		return nil, fmt.Errorf("Cannot detect 4 vertices")
 	}
-	return vertex, nil
+	return &vertex, nil
 }
 
 // 色反転
@@ -130,12 +131,12 @@ func colorInversion(mat gocv.Mat) gocv.Mat {
 }
 
 // 射影変換
-func transform(binaryMat gocv.Mat, vertex []image.Point) gocv.Mat {
+func transform(binaryMat gocv.Mat, vertex gocv.PointVector) gocv.Mat {
 	arcLen := gocv.ArcLength(vertex, true)
 	sqSize := max(int(arcLen/4), 300) //400
 	fmt.Printf("size of square: %dx%d\n", sqSize, sqSize)
 	tfSize := image.Point{sqSize, sqSize}
-	corners := []image.Point{image.Point{0, 0}, image.Point{0, tfSize.Y}, image.Point{tfSize.X, tfSize.Y}, image.Point{tfSize.X, 0}}
+	corners := gocv.NewPointVectorFromPoints([]image.Point{{0, 0}, {0, tfSize.Y}, {tfSize.X, tfSize.Y}, {tfSize.X, 0}})
 	tfMat := gocv.GetPerspectiveTransform(vertex, corners)
 	sqMat := gocv.NewMatWithSize(sqSize, sqSize, binaryMat.Type())
 	gocv.WarpPerspective(binaryMat, &sqMat, tfMat, tfSize)

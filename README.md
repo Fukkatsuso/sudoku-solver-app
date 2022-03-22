@@ -6,7 +6,7 @@
 ```sh
 $ docker-compose up
 ```
-の後，[http://localhost:8080]を開く
+の後，<http://localhost:8080>を開く
 
 
 ## Deploy
@@ -30,3 +30,8 @@ $ docker-compose up
 ## TODO
 - pushからデプロイ，マージまでのフローを整理
 - viewsをコンポーネント分割
+
+## References
+
+- [gocv/opencv - Docker container with OpenCV 4.x](https://hub.docker.com/r/gocv/opencv)
+- [tesseract installation](https://github.com/tesseract-ocr/tessdoc/blob/main/Installation.md)
