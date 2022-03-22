@@ -25,9 +25,7 @@ $ docker-compose up
 - リポジトリのSecrets
   - GCP_PROJECT: プロジェクトID
   - GCP_REGION: リージョン
-  - GCP_SA_EMAIL: サービスアカウントのemail
-  - GCP_SA_KEY: サービスアカウントのJSON鍵をBase64エンコードする
-    - (mac) `$ openssl base64 -in {key file} | pbcopy`
+  - GCP_SA_KEY: サービスアカウントのJSON鍵
 - 指定したGitHubのブランチにpush
 
 ## TODO
