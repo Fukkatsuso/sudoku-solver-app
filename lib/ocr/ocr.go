@@ -1,15 +1,14 @@
 package ocr
 
 import (
+	"bytes"
 	"fmt"
 	"image"
 	"image/color"
 	_ "image/jpeg"
 	"image/png"
 	_ "image/png"
-	"os"
 	"strconv"
-	"time"
 
 	"github.com/otiai10/gosseract"
 	"gocv.io/x/gocv"
@@ -146,15 +145,8 @@ func transform(binaryMat gocv.Mat, vertex gocv.PointVector) gocv.Mat {
 	return colorInversion(sqMat)
 }
 
-func newDir() string {
-	timestamp := time.Now().UnixNano()
-	dirName := fmt.Sprintf("img%d", timestamp)
-	os.Mkdir(dirName, 0777)
-	return dirName
-}
-
-func cellOCR(client *gosseract.Client, imgpath string) int {
-	client.SetImage(imgpath)
+func cellOCR(client *gosseract.Client, imgBytes []byte) int {
+	client.SetImageFromBytes(imgBytes)
 	text, err := client.Text()
 	if err != nil {
 		return 0
@@ -174,24 +166,19 @@ func tableOCR(tableImg image.Image, table [][]int) error {
 	defer client.Close()
 	client.SetPageSegMode(gosseract.PSM_SINGLE_CHAR)
 	client.SetWhitelist("123456789")
-	// 一時的に使用するディレクトリ
-	dirName := newDir()
-	defer os.RemoveAll(dirName)
+
 	size := tableImg.Bounds().Dx()
 	for i := 0; i < 9; i++ {
 		for j := 0; j < 9; j++ {
 			rect := image.Rect(j*size/9+2*(j/3+1), i*size/9+2*(i/3+1), (j+1)*size/9-2*(j/3+1), (i+1)*size/9-2*(i/3+1))
 			subImg := tableImg.(SubImager).SubImage(rect)
-			fileName := fmt.Sprintf("%s/cell%d-%d.png", dirName, i, j)
-			f, err := os.Create(fileName)
-			if err != nil {
+			// subImg to []bytes
+			buf := new(bytes.Buffer)
+			if err := png.Encode(buf, subImg); err != nil {
 				return err
 			}
-			defer f.Close()
-			if err := png.Encode(f, subImg); err != nil {
-				return err
-			}
-			num := cellOCR(client, fileName)
+			// OCR
+			num := cellOCR(client, buf.Bytes())
 			table[i][j] = num
 		}
 	}
