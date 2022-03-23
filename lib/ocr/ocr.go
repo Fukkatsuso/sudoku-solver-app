@@ -53,20 +53,22 @@ func ImageToSudoku(img image.Image, table [][]int, savepath string) error {
 
 	grayMat := RGBToGray(rgbMat)
 	blurredMat := blur(grayMat)
-	gocv.IMWrite(savepath+"gray.png", blurredMat)
+	go gocv.IMWrite(savepath+"gray.png", blurredMat)
 	binaryMat := binarization(blurredMat)
-	gocv.IMWrite(savepath+"binary.png", binaryMat)
+	go gocv.IMWrite(savepath+"binary.png", binaryMat)
 
 	vertex, err := findVertex(binaryMat)
 	if err != nil {
 		return err
 	}
-	contours := gocv.NewPointsVectorFromPoints([][]image.Point{vertex.ToPoints()})
-	gocv.DrawContours(&rgbMat, contours, -1, color.RGBA{255, 0, 0, 0}, 2)
-	gocv.IMWrite(savepath+"contour.png", rgbMat)
+	go func() {
+		contours := gocv.NewPointsVectorFromPoints([][]image.Point{vertex.ToPoints()})
+		gocv.DrawContours(&rgbMat, contours, -1, color.RGBA{255, 0, 0, 0}, 2)
+		gocv.IMWrite(savepath+"contour.png", rgbMat)
+	}()
 	// 射影変換
 	tableMat := transform(binaryMat, *vertex)
-	gocv.IMWrite(savepath+"table.png", tableMat)
+	go gocv.IMWrite(savepath+"table.png", tableMat)
 
 	// SubImageを使う前準備
 	tableImg, err := tableMat.ToImage()
