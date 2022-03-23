@@ -8,6 +8,8 @@ import (
 	_ "image/jpeg"
 	"image/png"
 	_ "image/png"
+	"os"
+	"path"
 	"strconv"
 
 	"github.com/otiai10/gosseract"
@@ -41,20 +43,24 @@ type SubImager interface {
 
 // RGB画像を受け取ってOCR
 func ImageToSudoku(img image.Image, table [][]int, savepath string) error {
+	// 画像処理の途中経過を保存するディレクトリ
+	if _, err := os.Stat(savepath); os.IsNotExist(err) {
+		err = os.MkdirAll(savepath, os.FileMode(0777))
+		if err != nil {
+			return err
+		}
+	}
+
 	rgbMat, err := gocv.ImageToMatRGB(img)
 	if err != nil {
 		return err
 	}
 
-	if savepath[len(savepath)-1] != '/' {
-		savepath += "/"
-	}
-
 	grayMat := RGBToGray(rgbMat)
 	blurredMat := blur(grayMat)
-	go gocv.IMWrite(savepath+"gray.png", blurredMat)
+	go gocv.IMWrite(path.Join(savepath, "gray.png"), blurredMat)
 	binaryMat := binarization(blurredMat)
-	go gocv.IMWrite(savepath+"binary.png", binaryMat)
+	go gocv.IMWrite(path.Join(savepath, "binary.png"), binaryMat)
 
 	vertex, err := findVertex(binaryMat)
 	if err != nil {
@@ -63,11 +69,11 @@ func ImageToSudoku(img image.Image, table [][]int, savepath string) error {
 	go func() {
 		contours := gocv.NewPointsVectorFromPoints([][]image.Point{vertex.ToPoints()})
 		gocv.DrawContours(&rgbMat, contours, -1, color.RGBA{255, 0, 0, 0}, 2)
-		gocv.IMWrite(savepath+"contour.png", rgbMat)
+		gocv.IMWrite(path.Join(savepath, "contour.png"), rgbMat)
 	}()
 	// 射影変換
 	tableMat := transform(binaryMat, *vertex)
-	go gocv.IMWrite(savepath+"table.png", tableMat)
+	go gocv.IMWrite(path.Join(savepath, "table.png"), tableMat)
 
 	// SubImageを使う前準備
 	tableImg, err := tableMat.ToImage()
