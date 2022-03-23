@@ -8,6 +8,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"path"
+	"time"
 
 	"github.com/Fukkatsuso/sudoku"
 	"github.com/Fukkatsuso/sudoku-solver-app/lib/ocr"
@@ -65,7 +67,9 @@ func imageToSudoku(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 	table := table9x9()
-	if err := ocr.ImageToSudoku(img, table, "log/images"); err != nil {
+	nowString := fmt.Sprintf("%d", time.Now().UnixNano())
+	savepath := path.Join("log", "images", nowString)
+	if err := ocr.ImageToSudoku(img, table, savepath); err != nil {
 		fmt.Println("[Error]", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

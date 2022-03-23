@@ -1,6 +1,7 @@
 package ocr
 
 import (
+	"bytes"
 	"fmt"
 	"image"
 	"image/color"
@@ -8,8 +9,8 @@ import (
 	"image/png"
 	_ "image/png"
 	"os"
+	"path"
 	"strconv"
-	"time"
 
 	"github.com/otiai10/gosseract"
 	"gocv.io/x/gocv"
@@ -42,31 +43,37 @@ type SubImager interface {
 
 // RGB画像を受け取ってOCR
 func ImageToSudoku(img image.Image, table [][]int, savepath string) error {
+	// 画像処理の途中経過を保存するディレクトリ
+	if _, err := os.Stat(savepath); os.IsNotExist(err) {
+		err = os.MkdirAll(savepath, os.FileMode(0777))
+		if err != nil {
+			return err
+		}
+	}
+
 	rgbMat, err := gocv.ImageToMatRGB(img)
 	if err != nil {
 		return err
 	}
 
-	if savepath[len(savepath)-1] != '/' {
-		savepath += "/"
-	}
-
 	grayMat := RGBToGray(rgbMat)
 	blurredMat := blur(grayMat)
-	gocv.IMWrite(savepath+"gray.png", blurredMat)
+	go gocv.IMWrite(path.Join(savepath, "gray.png"), blurredMat)
 	binaryMat := binarization(blurredMat)
-	gocv.IMWrite(savepath+"binary.png", binaryMat)
+	go gocv.IMWrite(path.Join(savepath, "binary.png"), binaryMat)
 
 	vertex, err := findVertex(binaryMat)
 	if err != nil {
 		return err
 	}
-	contours := gocv.NewPointsVectorFromPoints([][]image.Point{vertex.ToPoints()})
-	gocv.DrawContours(&rgbMat, contours, -1, color.RGBA{255, 0, 0, 0}, 2)
-	gocv.IMWrite(savepath+"contour.png", rgbMat)
+	go func() {
+		contours := gocv.NewPointsVectorFromPoints([][]image.Point{vertex.ToPoints()})
+		gocv.DrawContours(&rgbMat, contours, -1, color.RGBA{255, 0, 0, 0}, 2)
+		gocv.IMWrite(path.Join(savepath, "contour.png"), rgbMat)
+	}()
 	// 射影変換
 	tableMat := transform(binaryMat, *vertex)
-	gocv.IMWrite(savepath+"table.png", tableMat)
+	go gocv.IMWrite(path.Join(savepath, "table.png"), tableMat)
 
 	// SubImageを使う前準備
 	tableImg, err := tableMat.ToImage()
@@ -144,15 +151,8 @@ func transform(binaryMat gocv.Mat, vertex gocv.PointVector) gocv.Mat {
 	return colorInversion(sqMat)
 }
 
-func newDir() string {
-	timestamp := time.Now().UnixNano()
-	dirName := fmt.Sprintf("img%d", timestamp)
-	os.Mkdir(dirName, 0777)
-	return dirName
-}
-
-func cellOCR(client *gosseract.Client, imgpath string) int {
-	client.SetImage(imgpath)
+func cellOCR(client *gosseract.Client, imgBytes []byte) int {
+	client.SetImageFromBytes(imgBytes)
 	text, err := client.Text()
 	if err != nil {
 		return 0
@@ -172,24 +172,19 @@ func tableOCR(tableImg image.Image, table [][]int) error {
 	defer client.Close()
 	client.SetPageSegMode(gosseract.PSM_SINGLE_CHAR)
 	client.SetWhitelist("123456789")
-	// 一時的に使用するディレクトリ
-	dirName := newDir()
-	defer os.RemoveAll(dirName)
+
 	size := tableImg.Bounds().Dx()
 	for i := 0; i < 9; i++ {
 		for j := 0; j < 9; j++ {
 			rect := image.Rect(j*size/9+2*(j/3+1), i*size/9+2*(i/3+1), (j+1)*size/9-2*(j/3+1), (i+1)*size/9-2*(i/3+1))
 			subImg := tableImg.(SubImager).SubImage(rect)
-			fileName := fmt.Sprintf("%s/cell%d-%d.png", dirName, i, j)
-			f, err := os.Create(fileName)
-			if err != nil {
+			// subImg to []bytes
+			buf := new(bytes.Buffer)
+			if err := png.Encode(buf, subImg); err != nil {
 				return err
 			}
-			defer f.Close()
-			if err := png.Encode(f, subImg); err != nil {
-				return err
-			}
-			num := cellOCR(client, fileName)
+			// OCR
+			num := cellOCR(client, buf.Bytes())
 			table[i][j] = num
 		}
 	}
