@@ -10,7 +10,7 @@ on:
 env:
   GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
   GCP_REGION: ${{ secrets.GCP_REGION }}
-  IMAGE: asia.gcr.io/${{ secrets.GCP_PROJECT }}/sudoku-solver:${{ github.sha }}
+  IMAGE: asia-northeast1-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/sudoku-solver/image:${{ github.sha }}
 
 jobs:
   deploy:
@@ -27,8 +27,8 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v0
 
-      - name: Configure docker to use the gcloud cli
-        run: gcloud auth configure-docker --quiet
+      - name: Configure docker
+        run: gcloud auth configure-docker asia-northeast1-docker.pkg.dev
 
       - name: Build a docker image
         run: docker build -f Dockerfile --target release -t $IMAGE .
